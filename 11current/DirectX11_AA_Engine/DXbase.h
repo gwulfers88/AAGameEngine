@@ -34,6 +34,8 @@ public:
 	ID3D11RenderTargetView* m_pBackBufferTarget;
 	ID3D11Texture2D*        m_pBackBufferTexture;
 
+	ID3D11Texture2D*        depthBufferTexture;
+	ID3D11DepthStencilView* depthBuffer;
 
 	unsigned int width;
 	unsigned int height;
@@ -53,7 +55,7 @@ public:
 
 	bool CreateDeviceAndSwapChain(HWND& hw);
 	bool SetUpRenderTargetView();
-	void SetViewport();
+	void SetViewportAndDepthBuffer();
 
 	static bool CompileD3DShader(char* filePath, char* entry,char* shaderModel, ID3DBlob** buffer);
 	virtual bool LoadContent();

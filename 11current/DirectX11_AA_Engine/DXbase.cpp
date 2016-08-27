@@ -2,6 +2,7 @@
 #include<D3Dcompiler.h>
 #include<iostream>
 #include"DXbaseConst.h"
+#include"constants.h"
 //Most commonly, DXGI formats are used to describe the layout of the buffers in the swap chain.
 // 8 bits = 1byte;  bits used to describe the rate of deliver. byte use to describe the size of a file
 DXbase::DXbase()
@@ -127,7 +128,39 @@ bool DXbase::SetUpRenderTargetView() {
 	return true;
 }
 
-void DXbase::SetViewport() {
+void DXbase::SetViewportAndDepthBuffer() {
+
+	//======================================================================================
+	//1.Create a depth buffer object and initialize it with the texture.
+	//======================================================================================
+	D3D11_TEXTURE2D_DESC texd = { 0 };
+
+	texd.Width = GAME_WIDTH;
+	texd.Height = GAME_HEIGHT;
+	texd.ArraySize = 1;
+	texd.MipLevels = 1;
+	texd.SampleDesc.Count = 1;
+	texd.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	texd.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+	
+	m_pD3dDevice->CreateTexture2D(&texd, nullptr, &depthBufferTexture);
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
+	ZeroMemory(&dsvd, sizeof(dsvd));
+
+	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+
+	m_pD3dDevice->CreateDepthStencilView(depthBufferTexture, &dsvd, &depthBuffer);
+
+	//=====================================================================
+	//2. Set the Output-Merger Stage to write to the depth buffer.
+	//=====================================================================
+	m_pD3dContext->OMSetRenderTargets(1, &m_pBackBufferTarget, depthBuffer);
+
+	//=====================================================================
+	//3. Set the Rasterizer Stage to check the depth of each pixel before drawing.
+	//=====================================================================
 	D3D11_VIEWPORT viewport;
 	viewport.Width = static_cast<float>(width);
 	viewport.Height = static_cast<float>(height);
@@ -135,10 +168,10 @@ void DXbase::SetViewport() {
 	viewport.MaxDepth = 1.0f;
 	viewport.TopLeftX = 0.0f;
 	viewport.TopLeftY = 0.0f;
-	//
-	//RSSetViewports:
-	//Bind an array of viewports to the rasterizer stage of the pipeline.
-	//
+	viewport.MinDepth = 0;  // the closest an object can be on the depth buffer is 0.0
+	viewport.MaxDepth = 1;  // the farthest an object can be on the depth buffer is 1.0
+
+	//RSSetViewports: Bind an array of viewports to the rasterizer stage of the pipeline.
 	m_pD3dContext->RSSetViewports(1, &viewport);
 }
 
@@ -156,8 +189,7 @@ bool DXbase::Initialize(HINSTANCE hinstance, HWND hw)
 //===========================================================
 	if (!CreateDeviceAndSwapChain(hw)){return false;}
 	if (!SetUpRenderTargetView()) {return false;}
-	SetViewport();
-	//HRESULT IDXGISwapChain::Present(UINT SyncInterval, UINT Flags);
+	SetViewportAndDepthBuffer();
 	//======================================================================
 	return LoadContent();
 }
@@ -166,7 +198,6 @@ void DXbase::DxBaseClearRenderTargetView(ID3D11RenderTargetView* m_pRenderTarget
 {
 	//float clearColor[4] = { 0.0f, 0.0f, 0.25f, 1.0f };
 	m_pD3dContext->ClearRenderTargetView(m_pBackBufferTarget, ColorRGBA);
-	//m_pSwapChain->Present(0, 0);// p 57.
 }
 
 bool DXbase::CompileD3DShader(char* filePath,char* entry,char* shaderModel, ID3DBlob** buffer) {

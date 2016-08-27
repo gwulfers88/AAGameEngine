@@ -12,32 +12,14 @@ namespace AAEngine {
 		RenderEngine();
 		virtual ~RenderEngine();
 
-		bool LoadContent();
-		void SetUpMatrixView();
-		void SetUpBlendStaTe();
-		void UnloadContent();
-
 		void Update(float dt)override;
 		void Render(float dt)override;
 		void CleanScreen();
-		bool DrawString(char* message, float startX, float startY);
-
-		bool CreateVertexShader(char* fileName, ID3D11VertexShader* vsShader, ID3D11InputLayout* inputLayout);
-		bool CreatePixelShader(char*  fileName, ID3D11PixelShader* psShader);
-		bool CreateConstantBuffer(ID3D11Buffer* constBuffer);
-		bool CreateTexture();
-		bool CreateDynamicBufferForFront();
+		bool DrawString(char* message, float startX, float startY, ID3D11Buffer* vertexBuffer_);
 
 		static bool MakeSingleTon();
-
-
 		static RenderEngine* instance;
 
-		std::vector<Renderer*> m_renders;
-
 		float Time;
-	private:
-
-		ID3D11Buffer* vertexBuffer_;
 	};
 }

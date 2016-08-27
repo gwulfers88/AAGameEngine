@@ -21,7 +21,9 @@ namespace AAEngine {
 		ID3D11Buffer*      constantBuffer;
 
 		void CompileVertexShader();
+		void CompilePixelShader();
 		void CreateConstantBuffer();
+
 	};
 }
 
