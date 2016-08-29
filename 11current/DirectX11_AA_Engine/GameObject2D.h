@@ -1,6 +1,6 @@
 #pragma once
 
-#include <xnamath.h>
+#include <DX11\xnamath.h>
 
 class GameObject2D
 {

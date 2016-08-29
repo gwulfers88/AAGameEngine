@@ -135,8 +135,8 @@ void DXbase::SetViewportAndDepthBuffer() {
 	//======================================================================================
 	D3D11_TEXTURE2D_DESC texd = { 0 };
 
-	texd.Width = GAME_WIDTH;
-	texd.Height = GAME_HEIGHT;
+	texd.Width = config->windowWidth;
+	texd.Height = config->windowHeight;
 	texd.ArraySize = 1;
 	texd.MipLevels = 1;
 	texd.SampleDesc.Count = 1;

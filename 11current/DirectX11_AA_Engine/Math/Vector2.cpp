@@ -74,7 +74,7 @@ namespace AAEngine{
 	}
 	float Vector2::squareMagnitude()
 	{
-		return x*x + y*y;
+		return Dot(Vector2(x, y), Vector2(x, y));
 	}
 
 	float Vector2::magnitude()

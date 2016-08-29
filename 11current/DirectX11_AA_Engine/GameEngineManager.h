@@ -4,9 +4,6 @@
 #include"DirectInput.h"
 #include"GameObject3D.h"
 
-
-
-
 class GameEngineManager
 {
 public:
@@ -17,8 +14,6 @@ public:
 	void LoadGameObject();
 	void Update();
 	void ReleaseAll();
-
-
 
 private:
 	GameObject3D* obj1;

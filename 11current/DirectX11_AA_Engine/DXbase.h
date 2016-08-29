@@ -6,10 +6,9 @@
 #endif
 
 #include <d3d11.h>
-#include <D3DX11.h>
-#include <xnamath.h>
-#include <DxErr.h>
-
+#include <DX11\D3DX11.h>
+#include <DX11\xnamath.h>
+#include <DX11\DxErr.h>
 
 class DXbase 
 {
