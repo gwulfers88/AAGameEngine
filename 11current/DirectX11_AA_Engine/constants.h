@@ -25,15 +25,48 @@
 
 #define TRANSCOLOR SETCOLOR_ARGB( 0, 255, 0, 255 ) // transparency color (magenta)
 
+// These are my data type definitions (George)
+typedef char		i8;		// 1 - byte
+typedef short		i16;	// 2 - byte
+typedef int			i32;	// 4 - byte
+typedef long long	i64;	// 8 - byte
+
+typedef unsigned char		u8;		// 1 - byte
+typedef unsigned short		u16;	// 2 - byte
+typedef unsigned int		u32;	// 4 - byte
+typedef unsigned long long	u64;	// 8 - byte
+
+typedef i32			b32;			// 4 - byte
+typedef float		r32;			// 4 - byte
+typedef double		r64;			// 8 - byte
+
+#define MAX_PATH_SIZE	256
+
+enum GraphicsLibrary
+{
+	GL_DX11 = 0x0001,
+	GL_GL	= 0x0002,
+};
+
+struct ConfigFile
+{
+	u8 name[4];			// Used to make sure that the file being read is a valid file!
+	i32 windowWidth;	// Application Resolution
+	i32 windowHeight;
+	GraphicsLibrary graphicsLib;
+};
+
+extern ConfigFile *config;	// We want this to be persistent through out or program so we can access the new width and height of the application
 
 //-----------------------------------------------
 //                  Constants	
 //-----------------------------------------------
 
 // window
-const char CLASS_NAME[] = "Game_SpaceWar";
+// (WEI) GIVE SOME OF THESE A BETTER NAME!!! GAME_WIDTH? WINDOW_WIDTH or SCREEN_WIDTH would be better!! Also make them #defines because it will not be bound to a single type of data!!
+const char CLASS_NAME[] = "AAEngine";
 const char GAME_TITLE[] = "SpaceWarI";
-const bool FULLSCREEN = false;              // windowed or fullscreen
+static bool FULLSCREEN = false;              // windowed or fullscreen ( This MUST NOT be constant! )
 const UINT  GAME_WIDTH = 1024;              // width of game in pixels
 const UINT  GAME_HEIGHT = 512;              // height of game in pixels
 //================================================================================
@@ -61,7 +94,6 @@ const char BACK_GROUND_IMAGE[] = "pictures\\grass_background.jpg";
 const char TEXTURE_IMAGE[] = "pictures\\textures.png";
 const char WARRIOR_IMAGE[] = "pictures\\15_tank_set.png";
 const char PLANET_IMAGE[] = "pictures\\planet2.png";
-
 
 //weapon types
 enum WEAPON { TORPEDO, SHIP, PLANET };

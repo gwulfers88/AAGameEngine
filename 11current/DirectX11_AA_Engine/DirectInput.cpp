@@ -1,7 +1,5 @@
 #include "DirectInput.h"
 
-
-
 DirectInput::DirectInput()
 {
 	directInput_ = nullptr;
@@ -12,17 +10,20 @@ DirectInput::~DirectInput()
 {
 }
 
-void DirectInput::ReleaseAll() {
+void DirectInput::ReleaseAll()
+{
 	if (keyboardDevice_)
 	{
 		keyboardDevice_->Unacquire();
 		keyboardDevice_->Release();
 	}
+
 	keyboardDevice_ = nullptr;
 	directInput_ = nullptr;
 }
 
-bool DirectInput::Init(HINSTANCE &hinstance, HWND& hw) {
+bool DirectInput::Init(HINSTANCE &hinstance, HWND& hw)
+{
 	HRESULT result;
 	ZeroMemory(keyboardKeys_, sizeof(keyboardKeys_));
 	ZeroMemory(prevKeyboardKeys_, sizeof(prevKeyboardKeys_));
@@ -65,7 +66,8 @@ bool DirectInput::Init(HINSTANCE &hinstance, HWND& hw) {
 	return true;
 }
 
-void DirectInput::Update() {
+void DirectInput::Update()
+{
 
 	keyboardDevice_->GetDeviceState(sizeof(keyboardKeys_), (LPVOID)&keyboardKeys_);
 

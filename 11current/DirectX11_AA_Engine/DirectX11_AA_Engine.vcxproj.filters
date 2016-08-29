@@ -55,6 +55,9 @@
     <Filter Include="DirectX11\Notes">
       <UniqueIdentifier>{7bbde39a-6d0f-43d5-9600-9b3d26f840df}</UniqueIdentifier>
     </Filter>
+    <Filter Include="OpenGL">
+      <UniqueIdentifier>{0af1add1-b1d3-44a3-8578-b87a0f1b2a93}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

@@ -5,7 +5,8 @@
 #include<vector>
 #include"Renderer.h"
 
-namespace AAEngine {
+namespace AAEngine
+{
 	class RenderEngine : public DXbase
 	{
 	public:

@@ -1,7 +1,8 @@
 #pragma once
 #include"Renderer.h"
 
-namespace AAEngine {
+namespace AAEngine 
+{
 	class RendererManager
 	{
 	public:

@@ -1,5 +1,5 @@
 #include<D3D11.h>
-#include<D3DX11.h>
+#include<DX11\D3DX11.h>
 #include"GameObject2D.h"
 
 GameObject2D::GameObject2D()
