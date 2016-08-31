@@ -22,6 +22,28 @@ void GLRenderEngine::Update(float dt)
 {
 	float aspect = (float)config->windowWidth / (float)config->windowHeight;
 	camera->UpdateAspectRatio(aspect);
+
+	vmath::vec3 camDist = transform.GetPosition() + vmath::vec3(0.0f, 25.0f, -100.0f);
+
+	//camera->SetPosition(camDist);
+
+	if (GetAsyncKeyState('W') & 0x8000)
+	{
+		transform.GetPosition()[2] += 5.0f;
+	}
+	else if (GetAsyncKeyState('S') & 0x8000)
+	{
+		transform.GetPosition()[2] -= 5.0f;
+	}
+
+	if (GetAsyncKeyState('A') & 0x8000)
+	{
+		transform.GetRotation()[1] += 5.0f;
+	}
+	else if (GetAsyncKeyState('D') & 0x8000)
+	{
+		transform.GetRotation()[1] -= 5.0f;
+	}
 }
 
 void GLRenderEngine::Render(float dt)
@@ -42,20 +64,21 @@ void GLRenderEngine::Render(float dt)
 		float f = i + dt * 0.0035f;
 		
 		//transform.GetRotation()[0] = dt * .50f;
-		transform.GetRotation()[1] = dt * .20f;
+		//transform.GetRotation()[1] = dt * .20f;
 
-		/*transform.GetPosition()[0] = sinf(1.5f * f) * 5.0f;
-		transform.GetPosition()[1] = cosf(1.2f * f) * 5.0f;
-		transform.GetPosition()[2] = sinf(1.5f * f) * cosf(.5f * f) * 2.0f;*/
+		//transform.GetPosition()[0] = sinf(1.5f * f) * 50.0f;
+		//transform.GetPosition()[1] = cosf(1.2f * f) * 50.0f;
+		//transform.GetPosition()[2] = sinf(1.5f * f) * cosf(.5f * f) * 20.0f;
 
 		glUniformMatrix4fv(shader.GetUniformLocation(UT_MODEL_VIEW), 1, GL_FALSE, transform.ToMatrix());
 
-		//if (i % 2)
+		//if (GetAsyncKeyState(VK_RETURN) & 0x8000)
 		{
 			glDrawElements(GL_TRIANGLES, cube.indexCount, GL_UNSIGNED_INT, 0);
 		}
 		//else
 		{
+			//glDrawElements(GL_LINES, cube.indexCount, GL_UNSIGNED_INT, 0);
 			//glDrawElements(GL_LINES, ArrayCount(indices), GL_UNSIGNED_INT, 0);
 		}
 	}
