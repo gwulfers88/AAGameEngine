@@ -42,7 +42,7 @@ void ObjLoader::OpenGL_LoadOBJ(char *fileName)
 	std::vector<Vector2> v_uvTextures;
 	std::vector<Vector3> v_normals;
 	std::vector<VertexIndex> v_FaceVertexIndex;
-
+	
 	unsigned int vertexPerFace = 0;
 
 	//1. Open file

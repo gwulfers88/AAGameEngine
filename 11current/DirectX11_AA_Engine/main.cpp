@@ -6,7 +6,7 @@
 */
 
 #include <memory>
-#include "constants.h"
+#include "SysFileHandling.h"
 #include "GameEngineManager.h"
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);//Windows Callback Procedure
@@ -15,80 +15,12 @@ HWND hwnd = NULL; //handle window, it is a pointer
 WINDOWPLACEMENT globalWindowPos = { sizeof(globalWindowPos) };
 b32 isRunning = false;
 ConfigFile *config = 0;	//We are using our Global config variable here that remembers the widnow width and height
-
-// Structure used to read in and write out data.
-struct FileResult
-{
-	void* data;
-	u32 fileSize;
-};
-
+HDC deviceContext;
 FileResult file;
 
-void FreeMemory(void* data)
-{
-	if (data)
-	{
-		VirtualFree(data, 0, MEM_RELEASE);
-		data = 0;
-	}
-}
-
-void* AllocMemory(u32 size)
-{
-	return VirtualAlloc(0, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-}
-
-FileResult ReadEntireFile(i8* filename)
-{
-	FileResult result = {};
-
-	HANDLE filehandle = CreateFile(filename, GENERIC_READ, 0, 0, OPEN_EXISTING, 0, 0);
-
-	if (filehandle != INVALID_HANDLE_VALUE)
-	{
-		LARGE_INTEGER filesize;
-		
-		if (GetFileSizeEx(filehandle, &filesize))
-		{
-			u32 size = filesize.QuadPart;
-			result.data = AllocMemory(size);
-
-			if (result.data)
-			{
-				DWORD bytesRead = 0;
-
-				if (ReadFile(filehandle, result.data, size, &bytesRead, 0) && size == bytesRead)
-				{
-					result.fileSize = bytesRead;
-				}
-			}
-		}
-
-		CloseHandle(filehandle);
-	}
-
-	return result;
-}
-
-b32 WriteEntireFile(i8* filename, FileResult fileResult)
-{
-	HANDLE filehandle = CreateFile(filename, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0);
-
-	if (filehandle != INVALID_HANDLE_VALUE)
-	{
-		DWORD bytesWritten = 0;
-		WriteFile(filehandle, fileResult.data, fileResult.fileSize, &bytesWritten, 0);
-		CloseHandle(filehandle);
-	}
-	else
-	{
-		// LOGGING
-		return false;
-	}
-
-	return true;
-}
+#pragma comment (lib, "opengl32.lib")
+#pragma comment (lib, "glew32.lib")
+#pragma comment (lib, "glu32.lib")
 
 // Thank you Raymond Chen!!
 void Win32FullscreenToggle(HWND window)
@@ -118,6 +50,23 @@ void Win32FullscreenToggle(HWND window)
 	}
 }
 
+void stringAppend(char* dest, char* src)
+{
+	while (*dest)
+	{
+		dest++;
+	}
+
+	while (*src)
+	{
+		*dest++ = *src++;
+	}
+
+	*dest++ = 0;
+}
+
+#include "GLRenderEngine.h"
+
 int WINAPI wWinMain(HINSTANCE hInstance,HINSTANCE prevInstance, LPWSTR cmdLine, int cmdShow)
 {
 	UNREFERENCED_PARAMETER(prevInstance);//nothing special for this function
@@ -136,7 +85,7 @@ int WINAPI wWinMain(HINSTANCE hInstance,HINSTANCE prevInstance, LPWSTR cmdLine, 
 			config->name[3] = 0;
 			config->windowHeight = GAME_HEIGHT;
 			config->windowWidth = GAME_WIDTH;
-			config->graphicsLib = GL_DX11;
+			config->graphicsLib = GL_GL;
 
 			file.data = config;
 			file.fileSize = sizeof(ConfigFile);
@@ -166,24 +115,38 @@ int WINAPI wWinMain(HINSTANCE hInstance,HINSTANCE prevInstance, LPWSTR cmdLine, 
 				FreeMemory(config);
 				return 0;
 			}
+		}
+		else
+		{
+			MessageBox(0, "Config.cfg seems to be invalid.", "ERROR!", MB_OK | MB_ICONERROR);
+			FreeMemory(config);
 
+			//LOG
+
+			return -100;
 		}
 	}
 
 	/*/=====================================================================================
 	//Demo initialze
 	//=====================================================================================*/
-	std::auto_ptr<GameEngineManager> gameEngineMananger(new GameEngineManager()); // need #include <memory>
+	//std::auto_ptr<GameEngineManager> gameEngineMananger(new GameEngineManager()); // need #include <memory>
 
-	if (!gameEngineMananger->Init(hInstance, hwnd))	//bool result was pointless so I made it better.
-	{
-		DestroyWindow(hwnd);
-		return -2;
-	}
+	//if (!gameEngineMananger->Init(hInstance, hwnd))	//bool result was pointless so I made it better.
+	//{
+	//	DestroyWindow(hwnd);
+	//	return -2;
+	//}
+
+	GLRenderEngine render;
+	
+	render.Initialize(hwnd);
 
 	MSG msg = { 0 };
 
 	isRunning = true;
+
+	r32 angle = 0;
 
 	while (isRunning)
 	{
@@ -239,7 +202,6 @@ int WINAPI wWinMain(HINSTANCE hInstance,HINSTANCE prevInstance, LPWSTR cmdLine, 
 						}
 					}
 				}
-
 			}break;
 
 			default:
@@ -248,17 +210,26 @@ int WINAPI wWinMain(HINSTANCE hInstance,HINSTANCE prevInstance, LPWSTR cmdLine, 
 			}
 		}
 
-		if (FULLSCREEN)
+		if (config->graphicsLib == GL_DX11)
 		{
-
+			//gameEngineMananger->Update();
 		}
+		else if (config->graphicsLib == GL_GL)
+		{
+			render.Update(0);
+			render.Render(angle++);
 
-		gameEngineMananger->Update();
+			SwapBuffers(deviceContext);
+		}
 	}
 
 	// Demo Shutdown
-	gameEngineMananger->ReleaseAll();
+	//gameEngineMananger->ReleaseAll();
 	
+	render.UnloadContent();
+	render.ReleaseAll();
+
+	ReleaseDC(hwnd, deviceContext);
 	FreeMemory(config);
 
 	return static_cast<int>(msg.wParam); //casting numerical data, like we are doing in Listing 2.3 by casting the wParam to an integer.
@@ -292,14 +263,18 @@ bool CreateMainWindow(HWND& hwnd, HINSTANCE hInstance,int cmdShow)
 	//to calculate the size required of the window based on our desired dimensions and style
 	//=====================================================================================*/
 	RECT rc = { 0, 0, config->windowWidth, config->windowHeight };
-	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);//false means no menu
+	//AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);//false means no menu
 	
+	char title[MAX_PATH_SIZE] = "AAGameEngine";
+	
+	stringAppend(title, config->graphicsLib == GL_DX11 ? " DX11" : " OpenGL");
+
 	/*/=====================================================================================
 	//Create the actual window
 	//=====================================================================================*/
 		hwnd = CreateWindowA(
 		CLASS_NAME, //lpClassName---window class name, Same to the name, we setuped.
-		"Blank Win32 Window",  //lpWindowName--the window title bar text.
+		title,  //lpWindowName--the window title bar text.
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE,//dwStyle-------window's style flag.
 		CW_USEDEFAULT,         //x-------------the Window's horizontal position
 		CW_USEDEFAULT,		 //y-------------the Window's vertical position
@@ -328,8 +303,24 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	{
 	case WM_CREATE:
 	{
-		// do initialization stuff here
-		// return success
+		if (config->graphicsLib == GL_GL)
+		{
+			// Required as part of the OpenGL Setup
+			deviceContext = GetDC(hwnd);
+
+			PIXELFORMATDESCRIPTOR pfd;
+			pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+			pfd.nVersion = 1;
+			pfd.iPixelType = PFD_TYPE_RGBA;
+			pfd.iLayerType = PFD_MAIN_PLANE;
+			pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER;
+			pfd.cDepthBits = 32;
+			pfd.cColorBits = 32;
+
+			i32 pixelFormat = ChoosePixelFormat(deviceContext, &pfd);
+			SetPixelFormat(deviceContext, pixelFormat, &pfd);
+		}
+
 	} break;
 
 	case WM_SIZE:
@@ -339,9 +330,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 		config->windowWidth = rect.right - rect.left;
 		config->windowHeight = rect.bottom - rect.top;
-
-		RECT rc = { 0, 0, config->windowWidth, config->windowHeight };
-		AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);//false means no menu
 		
 	}break;
 

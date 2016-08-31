@@ -39,8 +39,6 @@ namespace AAEngine {
 		std::vector<ComponentPair> m_componentVec;
 		Transform transform;
 	};
-
-
 }
 
 //struct ....... logicless

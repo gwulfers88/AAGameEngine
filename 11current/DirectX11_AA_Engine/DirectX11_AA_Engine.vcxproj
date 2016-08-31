@@ -90,11 +90,13 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)Additional\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-wd4996 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>D3D11.lib; D3DX11.lib; dxguid.lib; dinput8.lib; DxErr.lib; %(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Additional\lib\GL\Release\x64;$(DXSDK_DIR)lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <SubSystem>NotSet</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -126,11 +128,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BMPFileLoader.cpp" />
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="DirectInput.cpp" />
     <ClCompile Include="GameEngineManager.cpp" />
     <ClCompile Include="GameObject3D.cpp" />
+    <ClCompile Include="GLGraphicsEngine.cpp" />
+    <ClCompile Include="GLRenderEngine.cpp" />
+    <ClCompile Include="GLShader.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="MaterialManager.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -154,6 +160,7 @@
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BMPFileLoader.h" />
     <ClInclude Include="Bounds.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="ComponentBaseHeader.h" />
@@ -164,6 +171,12 @@
     <ClInclude Include="GameEngineManager.h" />
     <ClInclude Include="GameError.h" />
     <ClInclude Include="GameObject3D.h" />
+    <ClInclude Include="GLCamera.h" />
+    <ClInclude Include="GLcommon.h" />
+    <ClInclude Include="GLGraphicsEngine.h" />
+    <ClInclude Include="GLRenderEngine.h" />
+    <ClInclude Include="GLShader.h" />
+    <ClInclude Include="GLVertexFormat.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="Math\Vector4.h" />
@@ -176,6 +189,7 @@
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="RigidBodyManager.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="SysFileHandling.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="ObjectManager.h" />
@@ -193,6 +207,7 @@
     <ClInclude Include="Math\Vector3.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="SetUpModel.h" />
+    <ClInclude Include="Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="1ShaderNotes.txt" />
@@ -215,6 +230,10 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="TextureMap.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\GLSL\simple.fs" />
+    <None Include="Shaders\GLSL\simple.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

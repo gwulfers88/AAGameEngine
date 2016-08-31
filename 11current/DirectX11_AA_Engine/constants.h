@@ -44,8 +44,8 @@ typedef double		r64;			// 8 - byte
 
 enum GraphicsLibrary
 {
-	GL_DX11 = 0x0001,
-	GL_GL	= 0x0002,
+	GL_DX11,
+	GL_GL,
 };
 
 struct ConfigFile

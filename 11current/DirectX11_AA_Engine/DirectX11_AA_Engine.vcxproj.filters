@@ -58,6 +58,27 @@
     <Filter Include="OpenGL">
       <UniqueIdentifier>{0af1add1-b1d3-44a3-8578-b87a0f1b2a93}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{d6057d17-f9b4-48a0-8115-e54889afb85d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\Win">
+      <UniqueIdentifier>{43186668-be5e-4747-991d-88d3556519bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\GLSL">
+      <UniqueIdentifier>{1f0daf3b-0cc2-46e0-a59e-80636674629f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL\Shader">
+      <UniqueIdentifier>{0ba0c473-6356-4538-b9ea-8c841b65682f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL\Graphics">
+      <UniqueIdentifier>{db64e14d-a8db-42b8-a4fc-67439158776a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ImageLoaders">
+      <UniqueIdentifier>{a8156fb8-7882-407a-af9a-f3793280052b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ImageLoaders\BMP">
+      <UniqueIdentifier>{0e18b18a-66df-4115-911d-9e3174bf3b06}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -137,6 +158,18 @@
     </ClCompile>
     <ClCompile Include="RendererManager.cpp">
       <Filter>Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="GLGraphicsEngine.cpp">
+      <Filter>OpenGL\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="GLRenderEngine.cpp">
+      <Filter>OpenGL\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="GLShader.cpp">
+      <Filter>OpenGL\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="BMPFileLoader.cpp">
+      <Filter>ImageLoaders\BMP</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -257,6 +290,33 @@
     <ClInclude Include="RendererManager.h">
       <Filter>Manager</Filter>
     </ClInclude>
+    <ClInclude Include="GLcommon.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="SysFileHandling.h">
+      <Filter>Platform\Win</Filter>
+    </ClInclude>
+    <ClInclude Include="GLVertexFormat.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="GLGraphicsEngine.h">
+      <Filter>OpenGL\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GLRenderEngine.h">
+      <Filter>OpenGL\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GLShader.h">
+      <Filter>OpenGL\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="GLCamera.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="BMPFileLoader.h">
+      <Filter>ImageLoaders\BMP</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="TextureShader.txt">
@@ -300,5 +360,13 @@
     <FxCompile Include="TextureMap.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\GLSL\simple.fs">
+      <Filter>Shaders\GLSL</Filter>
+    </None>
+    <None Include="Shaders\GLSL\simple.vs">
+      <Filter>Shaders\GLSL</Filter>
+    </None>
   </ItemGroup>
 </Project>
