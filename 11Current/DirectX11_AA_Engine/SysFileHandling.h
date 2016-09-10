@@ -1,5 +1,12 @@
 #ifndef SYS_FILE_HANDLING_H
 #define SYS_FILE_HANDLING_H
+/* ========================================================================
+$File: SysFileHandling.h $
+$Date: 07-28-16 $
+$Revision: 08-6-16 $
+$Creator: George Wulfers $
+$Notice: (C) Copyright 2016 by WulfersGames, Inc. All Rights Reserved. $
+======================================================================== */
 
 #include "constants.h"
 

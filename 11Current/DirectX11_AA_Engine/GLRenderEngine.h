@@ -1,8 +1,14 @@
 #ifndef GL_RENDER_ENGINE_H
 #define GL_RENDER_ENGINE_H
+/* ========================================================================
+$File: GLRenderEngine.h $
+$Date: 07-28-16 $
+$Revision: 08-6-16 $
+$Creator: George Wulfers $
+$Notice: (C) Copyright 2016 by WulfersGames, Inc. All Rights Reserved. $
+======================================================================== */
 
 #include "GLGraphicsEngine.h"
-#include "Transform.h"
 
 class GLRenderEngine : public GLGraphicsEngine
 {

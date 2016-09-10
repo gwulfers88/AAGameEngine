@@ -1,67 +1,27 @@
 #ifndef GL_GRAPHICS_ENGINE_H
 #define GL_GRAPHICS_ENGINE_H
+/* ========================================================================
+$File: GLGraphicsEngine.h $
+$Date: 07-28-16 $
+$Revision: 08-6-16 $
+$Creator: George Wulfers $
+$Notice: (C) Copyright 2016 by WulfersGames, Inc. All Rights Reserved. $
+======================================================================== */
 
 #include "GLVertexFormat.h"
 #include "GLShader.h"
 #include "SysFileHandling.h"
+#include "Transform.h"
+#include "Mesh.h"
+
 #include <string>
-#include <algorithm>
-#include <fstream>
 
-namespace GL
-{
-	struct Mesh
-	{
-		vmath::vec3* vertices;
-		vmath::vec2* uvs;
-		vmath::vec3* normals;
-		unsigned int* indices;
-		int vertCount;
-		int uvCount;
-		int normCount;
-		int indexCount;
-	};
-}
+GLMesh OBJLoader(char* filename);
 
-GL::Mesh OBJLoader(char* filename);
-
-#define RED		vmath::vec3(1.0f, 0.0f, 0.0f)
-#define GREEN	vmath::vec3(0.0f, 1.0f, 0.0f)
-#define BLUE	vmath::vec3(0.0f, 0.0f, 1.0f)
-#define YELLOW	vmath::vec3(0.5f, 0.5f, 0.0f)
-#define CYAN	vmath::vec3(0.0f, 0.5f, 0.5f)
-#define PURPLE	vmath::vec3(0.5f, 0.0f, 0.5f)
-
-#define ArrayCount(a) (sizeof(a) / sizeof(a[0]))
-
-static VERTEX_FORMAT vertices[] =
-{
-	vmath::vec3(-0.5f, -0.5f, 0.0f), vmath::vec2(1.0f, 0.0f), vmath::vec3(0.0f, 0.0f, -1.0f),
-	vmath::vec3(-0.5f, 0.5f, 0.0f), vmath::vec2(1.0f, 1.0f), vmath::vec3(0.0f, 0.0f, 1.0f),
-	vmath::vec3(0.5f, 0.5f, 0.0f), vmath::vec2(0.0f, 1.0f), vmath::vec3(0.0f, -1.0f, 0.0f),
-	vmath::vec3(0.5f, -0.5f, 0.0), vmath::vec2(0.0f, 0.0f), vmath::vec3(1.0f, 0.0f, 0.0f),
-
-	vmath::vec3(-0.5f, -0.5f, 1.0f), vmath::vec2(1.0f, 0.0f), vmath::vec3(0.0f, 1.0f, 0.0f),
-	vmath::vec3(0.5f, -0.5f, 1.0f), vmath::vec2(1.0f, 1.0f), vmath::vec3(-1.0f, 0.0f, 0.0f),
-	vmath::vec3(0.5f, 0.5f, 1.0f), vmath::vec2(0.0f, 1.0f), vmath::vec3(0.0f, 0.0f, 0.0f),
-	vmath::vec3(-0.5f, 0.5f, 1.0f), vmath::vec2(0.0f, 0.0f), vmath::vec3(0.0f, 0.0f, 0.0f),
-};
-
-static unsigned int indices[] =
-{
-	0, 1, 2,
-	2, 3, 0,
-	4, 5, 6,
-	6, 7, 4,
-	0, 3, 5,
-	5, 4, 0,
-	3, 2, 6,
-	6, 5, 3,
-	2, 1, 7,
-	7, 6, 2,
-	1, 0, 4,
-	4, 7, 1,
-};
+void DrawMesh(GLMesh* mesh, vmath::mat4 transform, vmath::mat4 projection, vmath::vec3 lightPos = vmath::vec3(0), vmath::vec3 camPos = vmath::vec3(0), vmath::vec3 ambientLight = vmath::vec3(0));
+void AttachShader(GLMesh* mesh, GLShader* shader);
+void InitMesh(GLMesh* mesh);
+void UnloadMesh(GLMesh* mesh);
 
 class GLGraphicsEngine
 {
@@ -80,14 +40,13 @@ private:
 	HGLRC m_renderContext;
 	PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
 
-	//TEMPORARY PLACE FOR NOW
-	GLuint vao;
-	GLuint vertexBuffers[VB_SIZE];
+	GLShader simpleLightingShader;
+	GLShader simpleTextureShader;
+	GLShader simpleShader;
 
-	GLuint texture;
-
-	GLShader shader;
-	GL::Mesh cube;
+	GLMesh cube;
+	GLMesh tank;
+	GLMesh walker;
 };
 
 #endif

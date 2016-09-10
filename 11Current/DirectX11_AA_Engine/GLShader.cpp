@@ -1,3 +1,11 @@
+/* ========================================================================
+$File: GLShader.cpp $
+$Date: 07-28-16 $
+$Revision: 08-6-16 $
+$Creator: George Wulfers $
+$Notice: (C) Copyright 2016 by WulfersGames, Inc. All Rights Reserved. $
+======================================================================== */
+
 #include "GLShader.h"
 #include "SysFileHandling.h"
 
@@ -12,6 +20,10 @@ GLShader::GLShader()
 	pos_loc = 0;
 	color_loc = 0;
 	uv_loc = 0;
+
+	light0_loc = 0;
+	ambient_loc = 0;
+	camPso_loc = 0;
 
 	modelView_loc = 0;
 	projection_loc = 0;
@@ -35,6 +47,7 @@ void GLShader::LoadShaderFromFile(char* filename, int shaderType)
 
 		GLsizei size = 0;
 		GLchar buffer[MAX_PATH_SIZE];
+		buffer[0] = 0;
 
 		glGetShaderInfoLog(vs,
 			MAX_PATH_SIZE,
@@ -131,6 +144,18 @@ void GLShader::SetUniformLocation(char* name, int uniformType)
 		{
 			projection_loc = glGetUniformLocation(program, name);
 		}
+		else if (uniformType == UT_LIGHT0)
+		{
+			light0_loc = glGetUniformLocation(program, name);
+		}
+		else if (uniformType == UT_AMBIENT)
+		{
+			ambient_loc = glGetUniformLocation(program, name);
+		}
+		else if (uniformType == UT_CAMPOS)
+		{
+			camPso_loc = glGetUniformLocation(program, name);
+		}
 	}
 }
 
@@ -170,6 +195,18 @@ int GLShader::GetUniformLocation(int uniformType)
 		else if (uniformType == UT_PROJECTION)
 		{
 			return projection_loc;
+		}
+		else if (uniformType == UT_LIGHT0)
+		{
+			return light0_loc;
+		}
+		else if (uniformType == UT_AMBIENT)
+		{
+			return ambient_loc;
+		}
+		else if (uniformType == UT_CAMPOS)
+		{
+			return camPso_loc;
 		}
 	}
 

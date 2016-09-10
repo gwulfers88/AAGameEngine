@@ -5,7 +5,8 @@
 	main.cpp
 */
 
-#include <memory>
+// NOTE: We should try to minimize use of STL libraries and make our own.
+
 #include "SysFileHandling.h"
 #include "GameEngineManager.h"
 
@@ -17,10 +18,44 @@ b32 isRunning = false;
 ConfigFile *config = 0;	//We are using our Global config variable here that remembers the widnow width and height
 HDC deviceContext;
 FileResult file;
+LARGE_INTEGER globalPerfFreqReq;
 
 #pragma comment (lib, "opengl32.lib")
 #pragma comment (lib, "glew32.lib")
 #pragma comment (lib, "glu32.lib")
+
+// IMPORTANT: We should move to a different approach to allocating memory.
+// We should pre allocate a chunk of memory for our engine to use. This will ensure
+// that we leave CPU power to performing calculations and NOT allocations and deallocations.
+// Allocating and Deallocating are pretty slow operations and if we can manage to minimize this
+// as much as possible it will make performance a lot better.
+// Another problem with allocating things every where you introduce new points of failure.
+// All we should really need to do is to allocate a pool of memory and grab from it and recycle memory
+// and we will only have to deallocate it onec!!
+struct Memory
+{
+	void* PermanentStorage;
+	void* TransientStorage;
+	u64 PermanentStorageSize;
+	u64 TransientStorageSize;
+};
+
+// Gets the cycles that the CPU runs at (since boot time)
+LARGE_INTEGER win32GetClock()
+{
+	LARGE_INTEGER result;
+	QueryPerformanceCounter(&result);
+	return result;
+}
+
+// Calculates the Seconds elapsed 
+// NOTE: This function gets calculates time accurately since
+// we are getting the time from the CPU
+r64 win32GetSecondsElapsed(LARGE_INTEGER start, LARGE_INTEGER end)
+{
+	r64 result = (r64)(((r64)end.QuadPart - (r64)start.QuadPart) / (r64)globalPerfFreqReq.QuadPart);
+	return result;
+}
 
 // Thank you Raymond Chen!!
 void Win32FullscreenToggle(HWND window)
@@ -50,14 +85,28 @@ void Win32FullscreenToggle(HWND window)
 	}
 }
 
-void stringAppend(char* dest, char* src)
+// Calculates the length of a string
+i32 stringLength(char* str)
 {
+	i32 result = 0;
+	while (*str++)
+	{
+		result++;
+	}
+	return result;
+}
+
+// Copies and appends src string into dest string
+void stringAppend(char* dest, u32 destSize, char* src)
+{
+	// TODO(George): Add a size of the dest string
+	// to guard against reading invalid memory!!
 	while (*dest)
 	{
 		dest++;
 	}
 
-	while (*src)
+	while (*src || destSize-- == 1)
 	{
 		*dest++ = *src++;
 	}
@@ -72,12 +121,14 @@ int WINAPI wWinMain(HINSTANCE hInstance,HINSTANCE prevInstance, LPWSTR cmdLine, 
 	UNREFERENCED_PARAMETER(prevInstance);//nothing special for this function
 	UNREFERENCED_PARAMETER(cmdLine);//nothing special for this function
 	
+	// Loads the config file at startup
 	file = ReadEntireFile("Config.cfg");
 
 	if (!file.data)
 	{
 		if (MessageBox(0, "You dont seem to have your Config.cfg file\nWould you like to create it?\n", "CFG Not Found!", MB_OKCANCEL | MB_ICONINFORMATION) == IDOK)
 		{
+			//Create file if not found
 			config = (ConfigFile*)AllocMemory(sizeof(ConfigFile));
 			config->name[0] = 'C';
 			config->name[1] = 'F';
@@ -85,7 +136,7 @@ int WINAPI wWinMain(HINSTANCE hInstance,HINSTANCE prevInstance, LPWSTR cmdLine, 
 			config->name[3] = 0;
 			config->windowHeight = GAME_HEIGHT;
 			config->windowWidth = GAME_WIDTH;
-			config->graphicsLib = GL_GL;
+			config->graphicsLib |= GL_GL;
 
 			file.data = config;
 			file.fileSize = sizeof(ConfigFile);
@@ -105,11 +156,11 @@ int WINAPI wWinMain(HINSTANCE hInstance,HINSTANCE prevInstance, LPWSTR cmdLine, 
 	}
 	else
 	{
+		//Check to see if file is a valid cfg
 		config = (ConfigFile*)(file.data);
 		
 		if (config->name[0] == 'C' && config->name[1] == 'F' && config->name[2] == 'G')
 		{
-			//Do stuff with config file
 			if (!CreateMainWindow(hwnd, hInstance, cmdShow))
 			{
 				FreeMemory(config);
@@ -127,26 +178,40 @@ int WINAPI wWinMain(HINSTANCE hInstance,HINSTANCE prevInstance, LPWSTR cmdLine, 
 		}
 	}
 
+	// Get the Frequency of the system's CPU you are currently running on (Cycles per seconds)
+	// This value is persisted through out the system and it wont change so we can cache it for faster
+	// access if needed.
+	QueryPerformanceFrequency(&globalPerfFreqReq);
+
 	/*/=====================================================================================
 	//Demo initialze
 	//=====================================================================================*/
 	//std::auto_ptr<GameEngineManager> gameEngineMananger(new GameEngineManager()); // need #include <memory>
 
-	//if (!gameEngineMananger->Init(hInstance, hwnd))	//bool result was pointless so I made it better.
-	//{
-	//	DestroyWindow(hwnd);
-	//	return -2;
-	//}
+	/*if (!gameEngineMananger->Init(hInstance, hwnd))	//bool result was pointless so I made it better.
+	{
+		DestroyWindow(hwnd);
+		return -2;
+	}*/
 
 	GLRenderEngine render;
-	
 	render.Initialize(hwnd);
+
+	i8 fullTitle[MAX_PATH_SIZE];
+	fullTitle[0] = 0;
+	GetWindowText(hwnd, fullTitle, ArrayCount(fullTitle));
+	stringAppend(fullTitle, ArrayCount(fullTitle), config->graphicsLib == GL_DX11 ? " [DX11] " : " [OpenGL] v");
+	stringAppend(fullTitle, ArrayCount(fullTitle), (i8*)glGetString(GL_VERSION));
+	SetWindowText(hwnd, fullTitle);
 
 	MSG msg = { 0 };
 
 	isRunning = true;
 
 	r32 angle = 0;
+
+	//START Cycles Counter
+	LARGE_INTEGER lastCycleCounter = win32GetClock();
 
 	while (isRunning)
 	{
@@ -210,17 +275,31 @@ int WINAPI wWinMain(HINSTANCE hInstance,HINSTANCE prevInstance, LPWSTR cmdLine, 
 			}
 		}
 
-		if (config->graphicsLib == GL_DX11)
+		if ((config->graphicsLib & GL_DX11))
 		{
 			//gameEngineMananger->Update();
 		}
-		else if (config->graphicsLib == GL_GL)
+		else if ((config->graphicsLib & GL_GL))
 		{
 			render.Update(0);
 			render.Render(angle++);
 
 			SwapBuffers(deviceContext);
 		}
+
+		//Current Cycles Counter
+		LARGE_INTEGER currentCycleCounter = win32GetClock();
+
+		r64 cyclesElapsed = win32GetSecondsElapsed(lastCycleCounter, currentCycleCounter);
+		r32 MSPF = (r32)(cyclesElapsed * 1000.0f);	// Claculates the Milliseconds Per Frame.
+
+		lastCycleCounter = currentCycleCounter;
+
+		// Printout of Performace Counters
+		// Useful for profiling!!
+		i8 perfCounterBuffer[256];
+		sprintf(perfCounterBuffer, " %.02fms \n", MSPF);
+		OutputDebugString(perfCounterBuffer);
 	}
 
 	// Demo Shutdown
@@ -265,16 +344,12 @@ bool CreateMainWindow(HWND& hwnd, HINSTANCE hInstance,int cmdShow)
 	RECT rc = { 0, 0, config->windowWidth, config->windowHeight };
 	//AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);//false means no menu
 	
-	char title[MAX_PATH_SIZE] = "AAGameEngine";
-	
-	stringAppend(title, config->graphicsLib == GL_DX11 ? " DX11" : " OpenGL");
-
 	/*/=====================================================================================
 	//Create the actual window
 	//=====================================================================================*/
 		hwnd = CreateWindowA(
 		CLASS_NAME, //lpClassName---window class name, Same to the name, we setuped.
-		title,  //lpWindowName--the window title bar text.
+		"AAGameEngine",  //lpWindowName--the window title bar text.
 		WS_OVERLAPPEDWINDOW | WS_VISIBLE,//dwStyle-------window's style flag.
 		CW_USEDEFAULT,         //x-------------the Window's horizontal position
 		CW_USEDEFAULT,		 //y-------------the Window's vertical position
@@ -303,7 +378,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	{
 	case WM_CREATE:
 	{
-		if (config->graphicsLib == GL_GL)
+		if ((config->graphicsLib & GL_GL))
 		{
 			// Required as part of the OpenGL Setup
 			deviceContext = GetDC(hwnd);
@@ -319,8 +394,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 			i32 pixelFormat = ChoosePixelFormat(deviceContext, &pfd);
 			SetPixelFormat(deviceContext, pixelFormat, &pfd);
-		}
 
+			
+		}
+		
 	} break;
 
 	case WM_SIZE:

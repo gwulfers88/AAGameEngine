@@ -1,5 +1,12 @@
 #ifndef GL_VERTEX_FORMAT_H
 #define GL_VERTEX_FORMAT_H
+/* ========================================================================
+$File: GLVertexFormat.h $
+$Date: 07-28-16 $
+$Revision: 08-6-16 $
+$Creator: George Wulfers $
+$Notice: (C) Copyright 2016 by WulfersGames, Inc. All Rights Reserved. $
+======================================================================== */
 
 #include "GLcommon.h"
 

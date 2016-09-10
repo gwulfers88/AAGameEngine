@@ -1,5 +1,12 @@
 #ifndef GL_SHADER_H
 #define GL_SHADER_H
+/* ========================================================================
+$File: GLShader.h $
+$Date: 07-28-16 $
+$Revision: 08-6-16 $
+$Creator: George Wulfers $
+$Notice: (C) Copyright 2016 by WulfersGames, Inc. All Rights Reserved. $
+======================================================================== */
 
 #include "GLcommon.h"
 
@@ -21,6 +28,9 @@ enum UNIFORM_TYPE
 {
 	UT_MODEL_VIEW,
 	UT_PROJECTION,
+	UT_LIGHT0,
+	UT_AMBIENT,
+	UT_CAMPOS,
 };
 
 class GLShader
@@ -51,7 +61,11 @@ private:
 	GLuint pos_loc;
 	GLuint color_loc;
 	GLuint uv_loc;
+
 	GLuint normals_loc;
+	GLuint light0_loc;
+	GLuint ambient_loc;
+	GLuint camPso_loc;
 
 	GLuint modelView_loc;
 	GLuint projection_loc;

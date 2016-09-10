@@ -1,14 +1,32 @@
+/* ========================================================================
+$File: GLRenderEngine.cpp $
+$Date: 07-28-16 $
+$Revision: 08-6-16 $
+$Creator: George Wulfers $
+$Notice: (C) Copyright 2016 by WulfersGames, Inc. All Rights Reserved. $
+======================================================================== */
+
 #include "GLRenderEngine.h"
 #include "constants.h"
 #include "GLCamera.h"
 
-Transform transform;
+// TODO(George): Add these to mesh class
+Transform cubeTransform;
+Transform tankTransform;
+Transform walkerTransform;
+
 GLCamera* camera = 0;
 
 GLRenderEngine::GLRenderEngine() : GLGraphicsEngine()
 {
-	transform.SetPosition(vmath::vec3(0.0f, -25.0f, 0.0f));
-	transform.SetRotation(vmath::vec3(-90.0f, 0.0f, 0.0f));
+	cubeTransform.SetPosition(vmath::vec3(0.0f, 0.0f, -0.0f));
+	cubeTransform.SetRotation(vmath::vec3(-0.0f, 0.0f, 0.0f));
+
+	tankTransform.SetPosition(vmath::vec3(-50.0f, -5.0f, -0.0f));
+	tankTransform.SetRotation(vmath::vec3(-90.0f, 135.0f, 0.0f));
+	
+	walkerTransform.SetPosition(vmath::vec3(50.0f, -0.0f, 400.0f));
+	walkerTransform.SetRotation(vmath::vec3(-00.0f, 225.0f, 0.0f));
 
 	camera = new GLCamera(vmath::vec3(0, 0, -100.0f), 50.0f, (float)config->windowWidth / (float)config->windowHeight, 0.1f, 1000.0f);
 }
@@ -23,26 +41,40 @@ void GLRenderEngine::Update(float dt)
 	float aspect = (float)config->windowWidth / (float)config->windowHeight;
 	camera->UpdateAspectRatio(aspect);
 
-	vmath::vec3 camDist = transform.GetPosition() + vmath::vec3(0.0f, 25.0f, -100.0f);
+	if (GetAsyncKeyState(VK_UP) & 0x8000)
+	{
+		cubeTransform.GetRotation()[0] -= 5.0f * 0.16f;
+	}
+	else if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+	{
+		cubeTransform.GetRotation()[0] += 5.0f * 0.16f;
+	}
 
-	//camera->SetPosition(camDist);
+	if (GetAsyncKeyState('Q') & 0x8000)
+	{
+		cubeTransform.GetPosition()[1] -= 5.0f * 0.16f;
+	}
+	else if (GetAsyncKeyState('E') & 0x8000)
+	{
+		cubeTransform.GetPosition()[1] += 5.0f * 0.16f;
+	}
 
 	if (GetAsyncKeyState('W') & 0x8000)
 	{
-		transform.GetPosition()[2] += 5.0f;
+		cubeTransform.GetPosition()[2] += 5.0f * 0.16f;
 	}
 	else if (GetAsyncKeyState('S') & 0x8000)
 	{
-		transform.GetPosition()[2] -= 5.0f;
+		cubeTransform.GetPosition()[2] -= 5.0f * 0.16f;
 	}
 
 	if (GetAsyncKeyState('A') & 0x8000)
 	{
-		transform.GetRotation()[1] += 5.0f;
+		cubeTransform.GetRotation()[1] += 5.0f * 0.16f;
 	}
 	else if (GetAsyncKeyState('D') & 0x8000)
 	{
-		transform.GetRotation()[1] -= 5.0f;
+		cubeTransform.GetRotation()[1] -= 5.0f * 0.16f;
 	}
 }
 
@@ -51,39 +83,13 @@ void GLRenderEngine::Render(float dt)
 	glViewport(0, 0, config->windowWidth, config->windowHeight);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
+	glClearColor(0.25f, 0.25f, 0.25f, 1.0f);
 
-	glBindVertexArray(vao);
+	DrawMesh(&cube, cubeTransform.ToMatrix(), camera->ToMatrix());
 
-	shader.Bind();
+	//tankTransform.GetRotation()[1] += 0.16f * 5.0f;
+	DrawMesh(&tank, tankTransform.ToMatrix(), camera->ToMatrix(), cubeTransform.GetPosition(), camera->GetPosition(), vmath::vec3(0.1f));
 
-	glUniformMatrix4fv(shader.GetUniformLocation(UT_PROJECTION), 1, GL_FALSE, camera->ToMatrix());
-
-	for (int i = 0; i < 1; i++)
-	{
-		float f = i + dt * 0.0035f;
-		
-		//transform.GetRotation()[0] = dt * .50f;
-		//transform.GetRotation()[1] = dt * .20f;
-
-		//transform.GetPosition()[0] = sinf(1.5f * f) * 50.0f;
-		//transform.GetPosition()[1] = cosf(1.2f * f) * 50.0f;
-		//transform.GetPosition()[2] = sinf(1.5f * f) * cosf(.5f * f) * 20.0f;
-
-		glUniformMatrix4fv(shader.GetUniformLocation(UT_MODEL_VIEW), 1, GL_FALSE, transform.ToMatrix());
-
-		//if (GetAsyncKeyState(VK_RETURN) & 0x8000)
-		{
-			glDrawElements(GL_TRIANGLES, cube.indexCount, GL_UNSIGNED_INT, 0);
-		}
-		//else
-		{
-			//glDrawElements(GL_LINES, cube.indexCount, GL_UNSIGNED_INT, 0);
-			//glDrawElements(GL_LINES, ArrayCount(indices), GL_UNSIGNED_INT, 0);
-		}
-	}
-
-	shader.Unbind();
-
-	glBindVertexArray(0);
+	//walkerTransform.GetRotation()[1] -= 0.16f * 5.0f;
+	DrawMesh(&walker, walkerTransform.ToMatrix(), camera->ToMatrix(), cubeTransform.GetPosition(), camera->GetPosition(), vmath::vec3(0.1f));
 }

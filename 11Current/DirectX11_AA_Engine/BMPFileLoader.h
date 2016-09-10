@@ -1,5 +1,12 @@
 #ifndef BMP_FILE_LOADER_H
 #define BMP_FILE_LOADER_H
+/* ========================================================================
+$File: BMPFileLoader.h $
+$Date: 07-28-16 $
+$Revision: 08-6-16 $
+$Creator: George Wulfers $
+$Notice: (C) Copyright 2016 by WulfersGames, Inc. All Rights Reserved. $
+======================================================================== */
 
 #include "constants.h"
 #include "SysFileHandling.h"

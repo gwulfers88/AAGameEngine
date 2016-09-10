@@ -1,7 +1,16 @@
+/* ========================================================================
+$File: BMPFileLoader.cpp $
+$Date: 07-28-16 $
+$Revision: 08-6-16 $
+$Creator: George Wulfers $
+$Notice: (C) Copyright 2016 by WulfersGames, Inc. All Rights Reserved. $
+======================================================================== */
+
 #include "BMPFileLoader.h"
 
 // Follow link for more info: http://www.fileformat.info/format/bmp/egff.htm
-
+// IMPORTANT: This struct must be 1 byte aligned !!!
+// For more info see : https://msdn.microsoft.com/en-us/library/2e70t5y1.aspx
 #pragma pack(push, 1)
 struct BitmapHeader
 {
@@ -48,20 +57,10 @@ BitmapImage LoadBMP(char* filename)
 	{
 		BitmapHeader* bmpHeader = (BitmapHeader*)readResult.data;
 
-		if ((bmpHeader->FileType & 0x42) && (bmpHeader->FileType & 0x4d))
-		{
-			u32* pixels = (u32*)((u8*)readResult.data + bmpHeader->BitmapOffset);
-			result.pixels = pixels;
-			result.width = bmpHeader->Width;
-			result.height = bmpHeader->Height;
-		}
-		else
-		{
-			MessageBox(0, "Invalid file format!", "ERROR: BMP TYPE!", MB_OK);
-			
-			FreeMemory(readResult.data);
-			result = { 0 };
-		}
+		u32* pixels = (u32*)((u8*)readResult.data + bmpHeader->BitmapOffset);
+		result.pixels = pixels;
+		result.width = bmpHeader->Width;
+		result.height = bmpHeader->Height;
 	}
 
 	return result;

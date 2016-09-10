@@ -41,11 +41,12 @@ typedef float		r32;			// 4 - byte
 typedef double		r64;			// 8 - byte
 
 #define MAX_PATH_SIZE	256
+#define ArrayCount(a) (sizeof(a) / sizeof(a[0]))
 
 enum GraphicsLibrary
 {
-	GL_DX11,
-	GL_GL,
+	GL_DX11 = (1 << 0),
+	GL_GL = (1 << 1),
 };
 
 struct ConfigFile
@@ -53,7 +54,7 @@ struct ConfigFile
 	u8 name[4];			// Used to make sure that the file being read is a valid file!
 	i32 windowWidth;	// Application Resolution
 	i32 windowHeight;
-	GraphicsLibrary graphicsLib;
+	u32 graphicsLib;
 };
 
 extern ConfigFile *config;	// We want this to be persistent through out or program so we can access the new width and height of the application
